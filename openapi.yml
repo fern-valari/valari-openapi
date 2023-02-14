@@ -6,7 +6,7 @@ paths:
   /auth/partners:
     post:
       description: Use your Access Credentials to get a Bearer Token
-      operationId: authentication_createAuthenticationToken
+      operationId: authentication_create
       tags:
         - Authentication
       parameters: []
