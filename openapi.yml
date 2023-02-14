@@ -351,4 +351,6 @@ components:
       scheme: bearer
 servers:
   - url: https://sandbox.valari.co/api/v1
+    description: Sandbox
+  - url: https://app.valari.co/api/v1
     description: Production
