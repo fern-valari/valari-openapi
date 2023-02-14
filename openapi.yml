@@ -1,0 +1,354 @@
+openapi: 3.0.1
+info:
+  title: Valari API
+  version: ''
+paths:
+  /auth/partners:
+    post:
+      description: Use your Access Credentials to get a Bearer Token
+      operationId: authentication_createAuthenticationToken
+      tags:
+        - Authentication
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Authentication'
+              examples:
+                Example1:
+                  value:
+                    message: Token successfully created.
+                    data:
+                      type: accessToken
+                      attributes:
+                        token: >-
+                          Bearer
+                          eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY3RpdmUiOnRydWUsImFwcEtleSI6InRlc3QtYXBwIiwicGFydG5lcklkIjoiMDcxOTU2NTItYWEyMy00MDg1LTg4NTktMGZjZjU1NzE4MzQ5IiwidHlwZSI6InBhcnRuZXIiLCJzaG9ydENvZGUiOiJITyIsImlhdCI6MTY2ODYyNTM2NCwiZXhwIjoxNjY4NjMyNTY0fQ.OUbmz3LLbtEYut1Brr21bcc1LElkYHU0_tLclbVPtBA
+                        appKey: test-app
+                        partnerId: 07195652-aa23-4085-8859-0fcf55718349
+                        grantType: client_credentials
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+              examples:
+                Example1:
+                  value:
+                    errorType: Unauthorized
+                    errorMessage: Not Found
+                    errors:
+                      - Invalid partnerSecret
+                    errorRaw: null
+                    errorsValidation: null
+      summary: Create Authentication Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: accessToken
+                attributes:
+                  $ref: '#/components/schemas/AttributesRequest'
+              required:
+                - type
+                - attributes
+            examples:
+              Example1:
+                value:
+                  type: accessToken
+                  attributes:
+                    partnerId: partner_0123456
+                    partnerSecret: my-partner-secret
+                    grantType: client_credentials
+                    appKey: abcd1234
+              Example2:
+                value:
+                  type: accessToken
+                  attributes:
+                    partnerId: partner_0123456
+                    partnerSecret: my-partner-secret
+                    grantType: client_credentials
+                    appKey: abcd1234
+  /linkSessions:
+    post:
+      operationId: linkSessions_create
+      tags:
+        - LinkSessions
+      parameters: []
+      responses:
+        '204':
+          description: ''
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+      summary: Create a Link Session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/LinkSessionData'
+                  description: Link Session Payload
+              required:
+                - data
+            examples:
+              Example1:
+                value:
+                  data:
+                    type: linkSession
+                    attributes:
+                      ip: 127.0.0.1
+                      successUrl: https://myapp.com/success
+                      errorUrl: https://myapp.com/error
+  /linkSessions/{token}:
+    get:
+      description: Retrieve a link session by token
+      operationId: linkSessions_get
+      tags:
+        - LinkSessions
+      parameters:
+        - name: token
+          in: path
+          description: Session Token
+          required: true
+          schema:
+            type: string
+          examples:
+            Example1:
+              value: 308101477701fded66de5d4e4711abdc
+            Example2:
+              value: 308101477701fded66de5d4e4711abdc
+        - name: include
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/LinkSessionType'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkSession'
+              examples:
+                Example1:
+                  value:
+                    message: Successfully retrieved linkSession
+                    data:
+                      id: 4e58b2a6-9d29-47fd-992e-601d2c2d9323
+                      type: linkSession
+                      attributes:
+                        status: Active
+                        sessionType: person-application
+                        expiresAt: '2023-02-10T18:11:17.740Z'
+                        ip: 127.0.0.1
+                        longitude: null
+                        latitude: null
+                        errorUrl: https://auxi.mx
+                        successUrl: https://apprecio.mx
+                        webviewUrl: >-
+                          https://demo.valari.co/onboarding/person?token=308101477701fded66de5d4e4711abdc&shortCode=VA&partnerId=f603d296-ecc4-4256-a9f3-4ff93353aa92
+                        isExpired: false
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBody'
+              examples:
+                Example1:
+                  value:
+                    errorType: Unauthorized
+                    errorMessage: Unable to retrieve session with token
+                    errors: null
+                    errorRaw: null
+                    errorsValidation: null
+      summary: Show Link Session
+components:
+  schemas:
+    AttributesRequest:
+      type: object
+      properties:
+        partnerId:
+          type: string
+          description: Partner ID
+        partnerSecret:
+          type: string
+          description: Partner Secret from Access Credentials
+        grantType:
+          type: string
+          description: Oauth 2.0 Grant Type
+        appKey:
+          type: string
+          description: 8-32 Characters
+      required:
+        - partnerId
+        - partnerSecret
+        - grantType
+        - appKey
+    AuthenticationAttributes:
+      type: object
+      properties:
+        token:
+          type: string
+        appKey:
+          type: string
+        partnerId:
+          type: string
+        grantType:
+          type: string
+    AuthenticationData:
+      type: object
+      properties:
+        type:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/AuthenticationAttributes'
+    Authentication:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/AuthenticationData'
+    ErrorBody:
+      type: object
+      properties:
+        errorType:
+          type: string
+        errorMessage:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+        errorRaw:
+          type: string
+        errorsValidation:
+          type: string
+    LinkSession:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/LinkSessionData'
+    LinkSessionType:
+      type: string
+      enum:
+        - depositAccount
+        - authorizedUser
+        - customer
+        - businessCustomer
+        - application
+        - businessApplication
+      description: Value depends on the `sessionType`
+    LinkSessionData:
+      type: object
+      properties:
+        type:
+          type: string
+        attributes:
+          $ref: '#/components/schemas/LinkSessionsAttributes'
+        id:
+          type: string
+      required:
+        - attributes
+    LinkSessionsAttributes:
+      type: object
+      properties:
+        status:
+          type: string
+        sessionType:
+          type: string
+        expiresAt:
+          type: string
+        ip:
+          type: string
+        longitude:
+          type: string
+        latitude:
+          type: string
+        errorUrl:
+          type: string
+        successUrl:
+          type: string
+        webviewUrl:
+          type: string
+        isExpired:
+          type: boolean
+    SessionType:
+      type: string
+      enum:
+        - person-application
+        - business-application
+        - account-details
+        - send-payment
+      description: Type of Session to initialize
+    Relationships:
+      type: object
+      description: Link Session Relationships
+      properties:
+        application:
+          $ref: '#/components/schemas/Application'
+          description: Application
+        businessApplication:
+          $ref: '#/components/schemas/BusinessApplicationData'
+          description: Business Application Relationship
+    Application:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ApplicationData'
+      required:
+        - data
+    ApplicationData:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID of Application Resource
+        type:
+          type: string
+          description: Application
+    BusinessApplication:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/BusinessApplicationData'
+      required:
+        - data
+    BusinessApplicationData:
+      type: object
+      description: Business Application Relationship
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: UUID of Business Application
+        type:
+          type: string
+          description: Business Application
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+servers:
+  - url: https://sandbox.valari.co/api/v1
+    description: Production
